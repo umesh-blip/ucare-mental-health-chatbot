@@ -1,0 +1,38 @@
+.App {
+  text-align: center;
+}
+
+body {
+  background: linear-gradient(135deg, #181c2f 0%, #23244d 100%);
+  min-height: 100vh;
+  margin: 0;
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+.MuiPaper-root {
+  background: linear-gradient(120deg, #23244d 60%, #2d2e6b 100%);
+  border: 1px solid #2d2e6b;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: #23244d;
+}
+::-webkit-scrollbar-thumb {
+  background: #7f5fff;
+  border-radius: 4px;
+}
+
+a {
+  color: #7f5fff;
+  text-decoration: underline;
+}
+
+.MuiAppBar-root {
+  background: linear-gradient(90deg, #7f5fff 0%, #00cfff 100%);
+  box-shadow: 0 0 24px #7f5fff44;
+}
+
+.MuiToolbar-root {
+  min-height: 56px;
+}
