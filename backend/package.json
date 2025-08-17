@@ -16,8 +16,8 @@
     "express",
     "nodejs"
   ],
-  "author": "Your Name",
-  "license": "ISC",
+  "author": "umesh-blip",
+  "license": "MIT",
   "type": "commonjs",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

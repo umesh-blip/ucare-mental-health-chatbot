@@ -20,17 +20,17 @@
     "nodejs",
     "express"
   ],
-  "author": "Your Name",
+  "author": "umesh-blip",
   "license": "MIT",
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/ucare-mental-health-chatbot.git"
+    "url": "git+https://github.com/umesh-blip/ucare-mental-health-chatbot.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/ucare-mental-health-chatbot/issues"
+    "url": "https://github.com/umesh-blip/ucare-mental-health-chatbot/issues"
   },
-  "homepage": "https://github.com/yourusername/ucare-mental-health-chatbot#readme"
+  "homepage": "https://github.com/umesh-blip/ucare-mental-health-chatbot#readme"
 }
