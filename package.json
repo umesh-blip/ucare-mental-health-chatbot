@@ -4,12 +4,13 @@
   "description": "AI-powered mental health chatbot with Google Gemini integration",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "start": "node index.js",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
     "backend": "cd backend && npm start",
     "frontend": "cd frontend && npm start",
     "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
     "build": "cd frontend && npm run build",
-    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
+    "postinstall": "cd backend && npm install"
   },
   "keywords": [
     "chatbot",
@@ -22,6 +23,10 @@
   ],
   "author": "umesh-blip",
   "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
