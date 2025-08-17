@@ -19,6 +19,7 @@ require('dotenv').config();
 const express = require('express');           // Web framework for Node.js
 const cors = require('cors');                // Enable cross-origin requests
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Google's AI service
+const path = require('path');
 
 // Create Express application
 const app = express();
@@ -201,6 +202,14 @@ app.post('/api/chat', async (req, res) => {
  * Set the port (default: 5050) and start listening for requests
  */
 const PORT = process.env.PORT || 5050;
+
+// Serve static files from the React app in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../frontend/build')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+  });
+}
 
 // Start the server
 app.listen(PORT, () => {
