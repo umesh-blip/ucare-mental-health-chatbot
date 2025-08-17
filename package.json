@@ -24,7 +24,7 @@
   "author": "umesh-blip",
   "license": "MIT",
   "engines": {
-    "node": ">=16.0.0",
+    "node": "20.x",
     "npm": ">=8.0.0"
   },
   "devDependencies": {
