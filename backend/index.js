@@ -30,8 +30,21 @@ app.use(express.json());                     // Parse JSON request bodies
 /**
  * Initialize Google Gemini AI with your API key
  * This connects your chatbot to Google's AI service for intelligent responses
+ * 
+ * SECURITY: API key is now loaded from environment variables (.env file)
+ * Never commit your .env file to version control!
  */
-const genAI = new GoogleGenerativeAI('AIzaSyBULuatQikkD5kKKSKt8fKtGDD0Gqia4ls');
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+// Validate that API key is present
+if (!process.env.GEMINI_API_KEY) {
+  console.error('❌ ERROR: GEMINI_API_KEY environment variable is not set!');
+  console.error('Please create a .env file in the backend folder with your API key.');
+  console.error('Example: GEMINI_API_KEY=your_api_key_here');
+  process.exit(1);
+}
+
+console.log('✅ Gemini AI API key loaded successfully');
 
 /**
  * Test function to verify Gemini AI connection
