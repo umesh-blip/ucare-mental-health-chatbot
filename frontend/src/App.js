@@ -119,7 +119,8 @@ function App() {
     
     try {
       // Send message to backend API
-      const res = await fetch('http://localhost:5050/api/chat', {
+      const API_URL = process.env.REACT_APP_API_URL || "/api/chat";
+      const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: input }),
