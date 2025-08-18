@@ -63,3 +63,18 @@ a {
     transform: translateX(0);
   }
 }
+
+.doctor-avatar-floating {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  z-index: 1000;
+  background: none;
+  pointer-events: none;
+  animation: floatDoctor 2s ease-in-out infinite alternate;
+}
+
+@keyframes floatDoctor {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10px); }
+}

@@ -85,6 +85,26 @@ const DoctorAvatar = () => (
 );
 
 /**
+ * Add DoctorAvatarFloating component
+ */
+const DoctorAvatarFloating = () => (
+  <div className="doctor-avatar-floating">
+    <svg width="80" height="80" viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="24" r="24" fill="#E3F2FD"/>
+      <ellipse cx="24" cy="32" rx="12" ry="8" fill="#B3E5FC"/>
+      <circle cx="24" cy="20" r="10" fill="#FFF"/>
+      <ellipse cx="24" cy="22" rx="6" ry="7" fill="#FFE0B2"/>
+      <ellipse cx="21" cy="19" rx="1.5" ry="2" fill="#000"/>
+      <ellipse cx="27" cy="19" rx="1.5" ry="2" fill="#000"/>
+      <ellipse cx="24" cy="25" rx="3" ry="1.5" fill="#F8BBD0"/>
+      <rect x="20" y="29" width="8" height="6" rx="3" fill="#90CAF9"/>
+      <rect x="22.5" y="31" width="3" height="2" rx="1" fill="#FFF"/>
+      <rect x="23.5" y="32" width="1" height="2" rx="0.5" fill="#90CAF9"/>
+    </svg>
+  </div>
+);
+
+/**
  * Stress meter component
  */
 const stressLevels = [
@@ -468,6 +488,7 @@ function App() {
             </a>
           </Typography>
         </Box>
+        <DoctorAvatarFloating />
       </Box>
     </ThemeProvider>
   );
