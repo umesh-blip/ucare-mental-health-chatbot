@@ -87,8 +87,8 @@ const DoctorAvatar = () => (
 /**
  * Add DoctorAvatarFloating component
  */
-const DoctorAvatarFloating = () => (
-  <div className="doctor-avatar-floating">
+const DoctorAvatarFloating = ({ visible }) => (
+  <div className={`doctor-avatar-floating ${visible ? 'slide-in-doctor' : 'slide-out-doctor'}`}>
     <svg width="80" height="80" viewBox="0 0 48 48" fill="none">
       <circle cx="24" cy="24" r="24" fill="#E3F2FD"/>
       <ellipse cx="24" cy="32" rx="12" ry="8" fill="#B3E5FC"/>
@@ -156,12 +156,26 @@ function App() {
   // Add state for stress level (0: Low, 1: Mid, 2: High, 3: Very High)
   const [stressLevel, setStressLevel] = useState(0);
 
+  // Add state for doctor avatar visibility
+  const [doctorVisible, setDoctorVisible] = useState(false);
+  const doctorTimeoutRef = useRef();
+
   /**
    * Auto-scroll to bottom when new messages arrive
    * This ensures users always see the latest message
    */
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Show doctor avatar when a new bot message arrives
+  useEffect(() => {
+    if (messages.length > 1 && messages[messages.length - 1].from === 'bot') {
+      setDoctorVisible(true);
+      clearTimeout(doctorTimeoutRef.current);
+      doctorTimeoutRef.current = setTimeout(() => setDoctorVisible(false), 4000);
+    }
+    return () => clearTimeout(doctorTimeoutRef.current);
   }, [messages]);
 
   /**
@@ -488,7 +502,7 @@ function App() {
             </a>
           </Typography>
         </Box>
-        <DoctorAvatarFloating />
+        <DoctorAvatarFloating visible={doctorVisible} />
       </Box>
     </ThemeProvider>
   );
