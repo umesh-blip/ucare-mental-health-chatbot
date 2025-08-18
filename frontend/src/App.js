@@ -185,6 +185,11 @@ function App() {
       // Add bot response to chat
       setMessages((msgs) => [...msgs, { from: 'bot', text: data.response }]);
       
+      // Set stress level from backend if available
+      if (typeof data.stressLevel === 'number') {
+        setStressLevel(data.stressLevel);
+      }
+      
     } catch (e) {
       // Handle any errors that occur
       console.error('Chat error:', e);
@@ -237,17 +242,6 @@ function App() {
   const handleQuickReply = (reply) => {
     setInput(reply);                    // Set the input to the quick reply
     setTimeout(() => sendMessage(), 100); // Send it after a short delay
-  };
-
-  /**
-   * Simple stress detection (can be improved)
-   */
-  const detectStress = (msg) => {
-    const text = msg.toLowerCase();
-    if (text.includes('panic') || text.includes('overwhelmed') || text.includes('very high')) return 3;
-    if (text.includes('anxious') || text.includes('stressed') || text.includes('high')) return 2;
-    if (text.includes('okay') || text.includes('mid') || text.includes('fine')) return 1;
-    return 0;
   };
 
   /**

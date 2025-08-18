@@ -157,26 +157,23 @@ app.post('/api/chat', async (req, res) => {
      * Create a detailed prompt for the AI
      * This tells Gemini how to behave as UCare
      */
-    const prompt = `You are UCare, a supportive mental health chatbot for Indian users. Your role is to:
-    1. Detect early signs of stress, anxiety, or burnout in the user's message
-    2. Provide gentle, supportive, actionable recommendations and wellness tips
-    3. Always be empathetic, warm, and human-like
-    4. If the user seems in distress, include the Indian mental health helpline (${INDIAN_HELPLINE.phone}) and website (${INDIAN_HELPLINE.website})
-    5. Keep responses very short (under 40 words), conversational, friendly, and focused on stress relief
-    6. Use natural, human language and emojis to make responses warm and approachable
-    7. Avoid sounding robotic or generic; be personal and encouraging
-    
-    User message: "${message}"
-    
-    Please respond as UCare, your mental health companion.`;
+    const prompt = `You are UCare, a supportive mental health chatbot for Indian users.\nYour role is to:\n1. Detect early signs of stress, anxiety, or burnout in the user's message.\n2. Provide gentle, supportive, actionable recommendations and wellness tips.\n3. Always be empathetic, warm, and human-like.\n4. If the user seems in distress, include the Indian mental health helpline (${INDIAN_HELPLINE.phone}) and website (${INDIAN_HELPLINE.website}).\n5. Keep responses very short (under 40 words), conversational, friendly, and focused on stress relief.\n6. Use natural, human language and emojis to make responses warm and approachable.\n7. Avoid sounding robotic or generic; be personal and encouraging.\n\nIMPORTANT: After your response, output a single line exactly as follows:\nStressLevel: low, mid, high, or very high (based on the user's message).\n\nUser message: "${message}"\n\nPlease respond as UCare, your mental health companion.`;
 
     // Generate AI response
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const aiResponse = response.text();
     
-    // Send AI response back to frontend
-    res.json({ response: aiResponse });
+    // Add after aiResponse is received
+    const [botText, ...rest] = aiResponse.split('StressLevel:');
+    const stressLevelRaw = rest.join('StressLevel:').trim().toLowerCase();
+    let stressLevel = 0; // default to low
+    if (stressLevelRaw.includes('very high')) stressLevel = 3;
+    else if (stressLevelRaw.includes('high')) stressLevel = 2;
+    else if (stressLevelRaw.includes('mid')) stressLevel = 1;
+    // else keep as 0 (low)
+    // Send both response and stressLevel
+    res.json({ response: botText.trim(), stressLevel });
     
   } catch (error) {
     // FALLBACK: If AI fails, use demo responses
