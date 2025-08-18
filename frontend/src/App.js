@@ -67,6 +67,46 @@ const INDIAN_HELPLINE = {
 };
 
 /**
+ * Add doctor SVG as a React component
+ */
+const DoctorAvatar = () => (
+  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 12}}>
+    <circle cx="24" cy="24" r="24" fill="#E3F2FD"/>
+    <ellipse cx="24" cy="32" rx="12" ry="8" fill="#B3E5FC"/>
+    <circle cx="24" cy="20" r="10" fill="#FFF"/>
+    <ellipse cx="24" cy="22" rx="6" ry="7" fill="#FFE0B2"/>
+    <ellipse cx="21" cy="19" rx="1.5" ry="2" fill="#000"/>
+    <ellipse cx="27" cy="19" rx="1.5" ry="2" fill="#000"/>
+    <ellipse cx="24" cy="25" rx="3" ry="1.5" fill="#F8BBD0"/>
+    <rect x="20" y="29" width="8" height="6" rx="3" fill="#90CAF9"/>
+    <rect x="22.5" y="31" width="3" height="2" rx="1" fill="#FFF"/>
+    <rect x="23.5" y="32" width="1" height="2" rx="0.5" fill="#90CAF9"/>
+  </svg>
+);
+
+/**
+ * Stress meter component
+ */
+const stressLevels = [
+  { label: 'Low', emoji: '😊', color: '#4CAF50' },
+  { label: 'Mid', emoji: '😐', color: '#FFC107' },
+  { label: 'High', emoji: '😟', color: '#FF9800' },
+  { label: 'Very High', emoji: '😫', color: '#F44336' },
+];
+
+const StressMeter = ({ level }) => (
+  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, justifyContent: 'center' }}>
+    <Typography variant="subtitle1" sx={{ mr: 2, fontWeight: 'bold' }}>Stress Meter:</Typography>
+    {stressLevels.map((s, idx) => (
+      <Box key={s.label} sx={{ display: 'flex', alignItems: 'center', mx: 1 }}>
+        <span style={{ fontSize: 24, opacity: idx === level ? 1 : 0.3 }}>{s.emoji}</span>
+        <Typography variant="body2" sx={{ ml: 0.5, color: idx === level ? s.color : '#888', fontWeight: idx === level ? 'bold' : 'normal' }}>{s.label}</Typography>
+      </Box>
+    ))}
+  </Box>
+);
+
+/**
  * Main App Component
  * This is the heart of your chatbot frontend
  */
@@ -92,6 +132,9 @@ function App() {
   
   // Reference to the bottom of the chat for auto-scrolling
   const chatEndRef = useRef(null);
+
+  // Add state for stress level (0: Low, 1: Mid, 2: High, 3: Very High)
+  const [stressLevel, setStressLevel] = useState(0);
 
   /**
    * Auto-scroll to bottom when new messages arrive
@@ -197,6 +240,17 @@ function App() {
   };
 
   /**
+   * Simple stress detection (can be improved)
+   */
+  const detectStress = (msg) => {
+    const text = msg.toLowerCase();
+    if (text.includes('panic') || text.includes('overwhelmed') || text.includes('very high')) return 3;
+    if (text.includes('anxious') || text.includes('stressed') || text.includes('high')) return 2;
+    if (text.includes('okay') || text.includes('mid') || text.includes('fine')) return 1;
+    return 0;
+  };
+
+  /**
    * Render the Chatbot Interface
    * This returns the JSX that creates your chatbot's visual appearance
    */
@@ -248,6 +302,9 @@ function App() {
           py: 3                           // Vertical padding
         }}>
           
+          {/* Stress Meter */}
+          <StressMeter level={stressLevel} />
+
           {/* Chat Messages Area */}
           <Paper elevation={2} sx={{ 
             flex: 1,                      // Take available space
@@ -263,27 +320,24 @@ function App() {
             {/* Display All Messages */}
             {messages.map((msg, idx) => (
               <Box key={idx} sx={{ 
-                my: 2,                    // Vertical margin between messages
+                my: 2, 
                 display: 'flex', 
-                justifyContent: msg.from === 'user' ? 'flex-end' : 'flex-start'  // User right, bot left
+                justifyContent: msg.from === 'user' ? 'flex-end' : 'flex-start',
+                alignItems: 'flex-end',
               }}>
-                
-                {/* Individual Message Bubble */}
+                {msg.from === 'bot' && <DoctorAvatar />}
                 <Box
+                  className={msg.from === 'user' ? 'slide-in-right' : 'slide-in-left'}
                   sx={{
-                    px: 3,                // Horizontal padding
-                    py: 2,                // Vertical padding
-                    borderRadius: 2,      // Rounded corners
-                    
-                    // Different colors for user vs bot messages
-                    bgcolor: msg.from === 'user' 
-                      ? '#4CAF50'         // Green for user messages
-                      : '#E3F2FD',        // Light blue for bot messages
-                      
-                    color: msg.from === 'user' ? 'white' : '#1976D2',  // Text colors
-                    maxWidth: '75%',      // Don't let messages get too wide
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',  // Message shadow
-                    border: msg.from === 'user' ? 'none' : '1px solid #BBDEFB'  // Bot message border
+                    px: 3,
+                    py: 2,
+                    borderRadius: 2,
+                    bgcolor: msg.from === 'user' ? '#4CAF50' : '#E3F2FD',
+                    color: msg.from === 'user' ? 'white' : '#1976D2',
+                    maxWidth: '75%',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    border: msg.from === 'user' ? 'none' : '1px solid #BBDEFB',
+                    ml: msg.from === 'bot' ? 0 : 2,
                   }}
                 >
                   {/* Message Text */}
