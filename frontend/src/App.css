@@ -103,3 +103,28 @@ a {
   0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
   30% { transform: translateY(-4px); opacity: 1; }
 }
+
+.doctor-avatar-img {
+  border-radius: 50%;
+  display: block;
+}
+
+.doctor-tip-bubble {
+  position: fixed;
+  left: 120px;
+  bottom: 48px;
+  z-index: 999;
+  background: #ffffff;
+  color: #1f2a44;
+  border: 1px solid #e0e7ff;
+  border-radius: 14px;
+  padding: 10px 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  max-width: 260px;
+  font-size: 14px;
+  animation: tipSlideIn 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+@keyframes tipSlideIn {
+  from { opacity: 0; transform: translateX(-12px) translateY(8px); }
+  to { opacity: 1; transform: translateX(0) translateY(0); }
+}

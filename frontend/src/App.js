@@ -69,7 +69,7 @@ const INDIAN_HELPLINE = {
 /**
  * Add doctor SVG as a React component
  */
-const DoctorAvatar = () => (
+const DoctorAvatarSVG = () => (
   <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 12}}>
     <circle cx="24" cy="24" r="24" fill="#E3F2FD"/>
     <ellipse cx="24" cy="32" rx="12" ry="8" fill="#B3E5FC"/>
@@ -84,23 +84,31 @@ const DoctorAvatar = () => (
   </svg>
 );
 
+// Image-based avatar that falls back to SVG if /doctor.png is not found
+const DoctorAvatarImage = ({ size = 48, className }) => {
+  const [errored, setErrored] = React.useState(false);
+  if (errored) {
+    return <DoctorAvatarSVG />;
+  }
+  return (
+    <img
+      src="/doctor.png"
+      alt="Doctor"
+      width={size}
+      height={size}
+      onError={() => setErrored(true)}
+      className={className || 'doctor-avatar-img'}
+      style={{ marginRight: 12, borderRadius: '50%', boxShadow: '0 4px 10px rgba(0,0,0,0.12)' }}
+    />
+  );
+};
+
 /**
  * Add DoctorAvatarFloating component
  */
 const DoctorAvatarFloating = ({ visible }) => (
   <div className={`doctor-avatar-floating ${visible ? 'slide-in-doctor' : 'slide-out-doctor'}`}>
-    <svg width="80" height="80" viewBox="0 0 48 48" fill="none">
-      <circle cx="24" cy="24" r="24" fill="#E3F2FD"/>
-      <ellipse cx="24" cy="32" rx="12" ry="8" fill="#B3E5FC"/>
-      <circle cx="24" cy="20" r="10" fill="#FFF"/>
-      <ellipse cx="24" cy="22" rx="6" ry="7" fill="#FFE0B2"/>
-      <ellipse cx="21" cy="19" rx="1.5" ry="2" fill="#000"/>
-      <ellipse cx="27" cy="19" rx="1.5" ry="2" fill="#000"/>
-      <ellipse cx="24" cy="25" rx="3" ry="1.5" fill="#F8BBD0"/>
-      <rect x="20" y="29" width="8" height="6" rx="3" fill="#90CAF9"/>
-      <rect x="22.5" y="31" width="3" height="2" rx="1" fill="#FFF"/>
-      <rect x="23.5" y="32" width="1" height="2" rx="0.5" fill="#90CAF9"/>
-    </svg>
+    <DoctorAvatarImage size={80} className="doctor-avatar-img" />
   </div>
 );
 
@@ -125,6 +133,18 @@ const StressMeter = ({ level }) => (
     ))}
   </Box>
 );
+
+/**
+ * Health-safety rotating tips
+ */
+const HEALTH_TIPS = [
+  'Take 3 slow breaths — in 4, hold 2, out 6. 🌿',
+  'Sip some water and relax your shoulders. 💧',
+  'Step away for 2 minutes; stretch gently. 🧘',
+  'Write one worry down; park it for later. 📝',
+  'Text a friend or loved one to say hi. 💬',
+  'Notice 5 things you can see right now. 👀',
+];
 
 /**
  * Main App Component
@@ -156,19 +176,18 @@ function App() {
   // Add state for stress level (0: Low, 1: Mid, 2: High, 3: Very High)
   const [stressLevel, setStressLevel] = useState(0);
 
-  // Add state for doctor avatar visibility
+  // Add state for doctor avatar visibility (existing) and new tip index
   const [doctorVisible, setDoctorVisible] = useState(false);
   const doctorTimeoutRef = useRef();
+  const [tipIdx, setTipIdx] = useState(0);
 
-  /**
-   * Auto-scroll to bottom when new messages arrive
-   * This ensures users always see the latest message
-   */
+  // Rotate tips every 7 seconds
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    const id = setInterval(() => setTipIdx((i) => (i + 1) % HEALTH_TIPS.length), 7000);
+    return () => clearInterval(id);
+  }, []);
 
-  // Show doctor avatar when a new bot message arrives
+  // Show doctor when bot replies (existing)
   useEffect(() => {
     if (messages.length > 1 && messages[messages.length - 1].from === 'bot') {
       setDoctorVisible(true);
@@ -176,6 +195,14 @@ function App() {
       doctorTimeoutRef.current = setTimeout(() => setDoctorVisible(false), 4000);
     }
     return () => clearTimeout(doctorTimeoutRef.current);
+  }, [messages]);
+
+  /**
+   * Auto-scroll to bottom when new messages arrive
+   * This ensures users always see the latest message
+   */
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   /**
@@ -353,7 +380,7 @@ function App() {
                 justifyContent: msg.from === 'user' ? 'flex-end' : 'flex-start',
                 alignItems: 'flex-end',
               }}>
-                {msg.from === 'bot' && <DoctorAvatar />}
+                {msg.from === 'bot' && <DoctorAvatarImage size={48} />}
                 <Box
                   className={`${msg.from === 'user' ? 'slide-in-right' : 'slide-in-left'} bubble-pop`}
                   sx={{
@@ -383,7 +410,7 @@ function App() {
             {/* Loading Indicator */}
             {loading && (
               <Box sx={{ display: 'flex', justifyContent: 'flex-start', my: 2, alignItems: 'center' }}>
-                <DoctorAvatar />
+                <DoctorAvatarImage size={48} />
                 <div className="typing-bubble" style={{ marginLeft: 8 }}>
                   <span className="dot"></span>
                   <span className="dot"></span>
@@ -505,6 +532,7 @@ function App() {
           </Typography>
         </Box>
         <DoctorAvatarFloating visible={doctorVisible} />
+        <div className="doctor-tip-bubble" key={tipIdx}>{HEALTH_TIPS[tipIdx]}</div>
       </Box>
     </ThemeProvider>
   );
