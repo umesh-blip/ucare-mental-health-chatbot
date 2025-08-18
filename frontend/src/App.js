@@ -355,7 +355,7 @@ function App() {
               }}>
                 {msg.from === 'bot' && <DoctorAvatar />}
                 <Box
-                  className={msg.from === 'user' ? 'slide-in-right' : 'slide-in-left'}
+                  className={`${msg.from === 'user' ? 'slide-in-right' : 'slide-in-left'} bubble-pop`}
                   sx={{
                     px: 3,
                     py: 2,
@@ -382,11 +382,13 @@ function App() {
             
             {/* Loading Indicator */}
             {loading && (
-              <Box sx={{ display: 'flex', justifyContent: 'flex-start', my: 2 }}>
-                <CircularProgress size={24} color="primary" />
-                <Typography variant="body2" sx={{ ml: 2, color: 'text.secondary' }}>
-                  Thinking...
-                </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-start', my: 2, alignItems: 'center' }}>
+                <DoctorAvatar />
+                <div className="typing-bubble" style={{ marginLeft: 8 }}>
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                </div>
               </Box>
             )}
             
