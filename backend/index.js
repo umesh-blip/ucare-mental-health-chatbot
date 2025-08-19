@@ -76,7 +76,7 @@ testGemini();
  */
 const INDIAN_HELPLINE = {
   phone: '9152987821',
-  website: 'https://www.mohfw.gov.in/pdf/helpline.pdf',
+  website: 'https://manastha.com/',
 };
 
 /**
@@ -157,7 +157,7 @@ app.post('/api/chat', async (req, res) => {
      * Create a detailed prompt for the AI
      * This tells Gemini how to behave as UCare
      */
-    const prompt = `You are UCare, a supportive mental health chatbot for Indian users.\nYour role is to:\n1. Detect early signs of stress, anxiety, or burnout in the user's message.\n2. Provide gentle, supportive, actionable recommendations and wellness tips.\n3. Always be empathetic, warm, and human-like.\n4. If the user seems in distress, include the Indian mental health helpline (${INDIAN_HELPLINE.phone}) and website (${INDIAN_HELPLINE.website}).\n5. Keep responses very short (under 40 words), conversational, friendly, and focused on stress relief.\n6. Use natural, human language and emojis to make responses warm and approachable.\n7. Avoid sounding robotic or generic; be personal and encouraging.\n\nIMPORTANT: After your response, output a single line exactly as follows:\nStressLevel: low, mid, high, or very high (based on the user's message).\n\nUser message: "${message}"\n\nPlease respond as UCare, your mental health companion.`;
+    const prompt = `You are UCare, a caring mental health companion for Indian users.\nYour role is to:\n1. Gently detect signs of stress, anxiety, or burnout in the user's message.\n2. Respond in a warm, human, emotionally supportive tone.\n3. Offer 1 short, practical suggestion (breathing, reframing, tiny step) — not a list.\n4. Keep reply concise (25–45 words), friendly, and human-like with 1-2 appropriate emojis.\n5. Be encouraging and personal; avoid generic or clinical language.\n6. If the user seems in distress or the stress level feels very high, suggest reaching the Indian helpline (${INDIAN_HELPLINE.phone}) or website (${INDIAN_HELPLINE.website}) in a supportive way.\n\nIMPORTANT: After your response, output a single line exactly as follows on a new line:\nStressLevel: low, mid, high, or very high (your best estimate based on the user's message).\n\nUser message: "${message}"\n\nPlease respond as UCare.`;
 
     // Generate AI response
     const result = await model.generateContent(prompt);
@@ -172,8 +172,14 @@ app.post('/api/chat', async (req, res) => {
     else if (stressLevelRaw.includes('high')) stressLevel = 2;
     else if (stressLevelRaw.includes('mid')) stressLevel = 1;
 
+    // If stress very high, append helpline recommendation
+    let finalBotText = botText.trim();
+    if (stressLevel === 3) {
+      finalBotText += `\n\nIf you feel overwhelmed, consider calling ${INDIAN_HELPLINE.phone} or visiting ${INDIAN_HELPLINE.website} for professional support.`;
+    }
+
     // Send both response and stressLevel
-    return res.json({ response: botText.trim(), stressLevel });
+    return res.json({ response: finalBotText, stressLevel });
     
   } catch (error) {
     // FALLBACK: If AI fails, use demo responses
