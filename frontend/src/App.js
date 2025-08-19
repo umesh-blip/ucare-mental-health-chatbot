@@ -31,12 +31,11 @@ import {
   Chip 
 } from '@mui/material';
 
-// Import Material-UI icons
+// Import Material-UI iconshttps
 import SendIcon from '@mui/icons-material/Send';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
-import logo from './logo.svg';
 
 /**
  * Material-UI Theme Configuration
@@ -63,7 +62,7 @@ const theme = createTheme({
  */
 const INDIAN_HELPLINE = {
   phone: '9152987821',
-  website: 'https://www.mohfw.gov.in/pdf/helpline.pdf',
+  website: 'https://manastha.com/',
 };
 
 /**
@@ -84,7 +83,7 @@ const DoctorAvatarSVG = () => (
   </svg>
 );
 
-// Image-based avatar that falls back to SVG if /doctor.png is not found
+// Image-based avatar that falls back to SVG if the image is not found
 const DoctorAvatarImage = ({ size = 48, className }) => {
   const [errored, setErrored] = React.useState(false);
   if (errored) {
@@ -92,8 +91,8 @@ const DoctorAvatarImage = ({ size = 48, className }) => {
   }
   return (
     <img
-      src="/doctor.png"
-      alt="Doctor"
+      src="/wizardcode.jpeg"
+      alt="Assistant"
       width={size}
       height={size}
       onError={() => setErrored(true)}
@@ -327,7 +326,7 @@ function App() {
         }}>
           <Toolbar>
             {/* App Logo */}
-            <img src={logo} alt="UCare Logo" style={{ width: 28, height: 28, marginRight: 16 }} />
+            <img src="/logo.svg" alt="UCare Logo" style={{ width: 28, height: 28, marginRight: 16 }} />
             
             {/* Chatbot Title */}
             <Typography variant="h6" sx={{ 
