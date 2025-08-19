@@ -39,13 +39,10 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Validate that API key is present
 if (!process.env.GEMINI_API_KEY) {
-  console.error('❌ ERROR: GEMINI_API_KEY environment variable is not set!');
-  console.error('Please create a .env file in the backend folder with your API key.');
-  console.error('Example: GEMINI_API_KEY=your_api_key_here');
-  process.exit(1);
+  console.warn('⚠️ GEMINI_API_KEY not set. Running in demo-only mode (AI disabled).');
+} else {
+  console.log('✅ GEMINI_API_KEY detected. Note: AI calls are currently disabled (demo-only mode).');
 }
-
-console.log('✅ Gemini AI API key loaded successfully');
 
 /**
  * Test function to verify Gemini AI connection
@@ -67,8 +64,8 @@ async function testGemini() {
   }
 }
 
-// Run the test when server starts
-testGemini();
+// In demo-only mode, skip testing Gemini
+// testGemini();
 
 /**
  * Indian Mental Health Helpline Information
@@ -149,50 +146,15 @@ app.post('/api/chat', async (req, res) => {
     return res.status(400).json({ error: 'Message is required.' });
   }
 
-  try {
-    // PRIMARY: Use Gemini AI for intelligent responses
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-    
-    /**
-     * Create a detailed prompt for the AI
-     * This tells Gemini how to behave as UCare
-     */
-    const prompt = `You are UCare, a supportive mental health chatbot for Indian users.\nYour role is to:\n1. Detect early signs of stress, anxiety, or burnout in the user's message.\n2. Provide gentle, supportive, actionable recommendations and wellness tips.\n3. Always be empathetic, warm, and human-like.\n4. If the user seems in distress, include the Indian mental health helpline (${INDIAN_HELPLINE.phone}) and website (${INDIAN_HELPLINE.website}).\n5. Keep responses very short (under 40 words), conversational, friendly, and focused on stress relief.\n6. Use natural, human language and emojis to make responses warm and approachable.\n7. Avoid sounding robotic or generic; be personal and encouraging.\n\nIMPORTANT: After your response, output a single line exactly as follows:\nStressLevel: low, mid, high, or very high (based on the user's message).\n\nUser message: "${message}"\n\nPlease respond as UCare, your mental health companion.`;
-
-    // Generate AI response
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const aiResponse = response.text();
-    
-    // Add after aiResponse is received
-    const [botText, ...rest] = aiResponse.split('StressLevel:');
-    const stressLevelRaw = rest.join('StressLevel:').trim().toLowerCase();
-    let stressLevel = 0; // default to low
-    if (stressLevelRaw.includes('very high')) stressLevel = 3;
-    else if (stressLevelRaw.includes('high')) stressLevel = 2;
-    else if (stressLevelRaw.includes('mid')) stressLevel = 1;
-    // else keep as 0 (low)
-    // Send both response and stressLevel
-    res.json({ response: botText.trim(), stressLevel });
-    
-  } catch (error) {
-    // FALLBACK: If AI fails, use demo responses
-    console.error('Gemini AI error:', error);
-    
-    let fallbackResponse;
-    
-    // Choose appropriate fallback response
-    if (isGreeting(message)) {
-      // Use greeting response for hello/hi messages
-      fallbackResponse = GREETING_RESPONSES[Math.floor(Math.random() * GREETING_RESPONSES.length)];
-    } else {
-      // Use general demo response for other messages
-      fallbackResponse = DEMO_REPLIES[Math.floor(Math.random() * DEMO_REPLIES.length)];
-    }
-    
-    // Send fallback response
-    res.json({ response: fallbackResponse });
+  // DEMO-ONLY MODE: Always return a friendly demo response (no AI calls)
+  let fallbackResponse;
+  if (isGreeting(message)) {
+    fallbackResponse = GREETING_RESPONSES[Math.floor(Math.random() * GREETING_RESPONSES.length)];
+  } else {
+    fallbackResponse = DEMO_REPLIES[Math.floor(Math.random() * DEMO_REPLIES.length)];
   }
+
+  return res.json({ response: fallbackResponse });
 });
 
 /**
