@@ -357,146 +357,151 @@ function App() {
         }}>
           
           {/* Stress Meter */}
-          <StressMeter level={stressLevel} />
-
-          {/* Chat Messages Area */}
-          <Paper elevation={2} sx={{ 
-            flex: 1,                      // Take available space
-            p: 3,                         // Padding inside
-            mb: 2,                        // Bottom margin
-            bgcolor: 'white',             // White background
-            overflowY: 'auto',            // Scrollable if many messages
-            borderRadius: 2,              // Rounded corners
-            boxShadow: '0 2px 12px rgba(0,0,0,0.1)',  // Subtle shadow
-            border: '1px solid #e0e0e0'  // Light border
-          }}>
-            
-            {/* Display All Messages */}
-            {messages.map((msg, idx) => (
-              <Box key={idx} sx={{ 
-                my: 2, 
-                display: 'flex', 
-                justifyContent: msg.from === 'user' ? 'flex-end' : 'flex-start',
-                alignItems: 'flex-end',
-              }}>
-                {msg.from === 'bot' && <DoctorAvatarImage size={48} />}
-                <Box
-                  className={`${msg.from === 'user' ? 'slide-in-right' : 'slide-in-left'} bubble-pop`}
-                  sx={{
-                    px: 3,
-                    py: 2,
-                    borderRadius: 2,
-                    bgcolor: msg.from === 'user' ? '#4CAF50' : '#E3F2FD',
-                    color: msg.from === 'user' ? 'white' : '#1976D2',
-                    maxWidth: '75%',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    border: msg.from === 'user' ? 'none' : '1px solid #BBDEFB',
-                    ml: msg.from === 'bot' ? 0 : 2,
-                  }}
-                >
-                  {/* Message Text */}
-                  <Typography variant="body1" sx={{ 
-                    whiteSpace: 'pre-line',  // Preserve line breaks
-                    fontWeight: msg.from === 'user' ? 500 : 400,  // User messages slightly bolder
-                    lineHeight: 1.6          // Comfortable reading spacing
-                  }}>
-                    {msg.text}
-                  </Typography>
-                </Box>
-              </Box>
-            ))}
-            
-            {/* Loading Indicator */}
-            {loading && (
-              <Box sx={{ display: 'flex', justifyContent: 'flex-start', my: 2, alignItems: 'center' }}>
-                <DoctorAvatarImage size={48} />
-                <div className="typing-bubble" style={{ marginLeft: 8 }}>
-                  <span className="dot"></span>
-                  <span className="dot"></span>
-                  <span className="dot"></span>
-                </div>
-              </Box>
-            )}
-            
-            {/* Invisible element for auto-scrolling */}
-            <div ref={chatEndRef} />
-          </Paper>
-
-          {/* Quick Reply Buttons Section */}
-          <Box sx={{ mb: 2, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-            {quickReplies.map((reply, index) => (
-              <Button
-                key={index}
-                variant="outlined"
-                size="small"
-                onClick={() => handleQuickReply(reply)}
-                sx={{
-                  borderColor: '#4CAF50',  // Green border
-                  color: '#4CAF50',        // Green text
-                  '&:hover': {
-                    borderColor: '#388E3C',  // Darker green on hover
-                    bgcolor: 'rgba(76, 175, 80, 0.1)',  // Light green background
-                    transform: 'translateY(-1px)',  // Slight lift effect
-                    transition: 'all 0.2s ease'  // Smooth animation
-                  }
-                }}
-              >
-                {reply}
-              </Button>
-            ))}
+          <Box className="stress-meter-container" sx={{ mb: 2 }}>
+            <StressMeter level={stressLevel} />
           </Box>
 
-          {/* Message Input Section */}
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end' }}>
+          {/* Modern Chat Container */}
+          <Box className="modern-chat-container" sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             
-            {/* Text Input Field */}
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Type your message..."
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={loading}
-              sx={{ 
-                bgcolor: 'white',
-                borderRadius: 2,
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: '#e0e0e0',  // Default border
-                  },
-                  '&:hover fieldset': {
-                    borderColor: '#4CAF50',  // Green border on hover
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#4CAF50',  // Green border when focused
-                  },
-                }
-              }}
-              multiline
-              minRows={1}
-              maxRows={4}
-            />
-            
-            {/* Send Button */}
-            <IconButton 
-              color="primary" 
-              onClick={sendMessage} 
-              disabled={loading || !input.trim()} 
-              size="large" 
-              sx={{ 
-                alignSelf: 'flex-end',
-                bgcolor: '#4CAF50',        // Green background
-                color: 'white',            // White icon
-                '&:hover': {
-                  bgcolor: '#388E3C',      // Darker green on hover
-                  transform: 'scale(1.05)', // Slight grow effect
-                  transition: 'all 0.2s ease'  // Smooth animation
-                }
-              }}
-            >
-              <SendIcon />
-            </IconButton>
+            {/* Chat Messages Area - Scrollable */}
+            <Box className="chat-messages-area">
+              {/* Display All Messages */}
+              {messages.map((msg, idx) => (
+                <Box key={idx} sx={{ 
+                  my: 2, 
+                  display: 'flex', 
+                  justifyContent: msg.from === 'user' ? 'flex-end' : 'flex-start',
+                  alignItems: 'flex-end',
+                }}>
+                  {msg.from === 'bot' && <DoctorAvatarImage size={48} />}
+                  <Box
+                    className={`${msg.from === 'user' ? 'slide-in-right' : 'slide-in-left'} bubble-pop message-bubble`}
+                    sx={{
+                      px: 3,
+                      py: 2,
+                      borderRadius: 2,
+                      bgcolor: msg.from === 'user' ? '#4CAF50' : '#E3F2FD',
+                      color: msg.from === 'user' ? 'white' : '#1976D2',
+                      maxWidth: '75%',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      border: msg.from === 'user' ? 'none' : '1px solid #BBDEFB',
+                      ml: msg.from === 'bot' ? 0 : 2,
+                    }}
+                  >
+                    {/* Message Text */}
+                    <Typography variant="body1" sx={{ 
+                      whiteSpace: 'pre-line',  // Preserve line breaks
+                      fontWeight: msg.from === 'user' ? 500 : 400,  // User messages slightly bolder
+                      lineHeight: 1.6          // Comfortable reading spacing
+                    }}>
+                      {msg.text}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+              
+              {/* Loading Indicator */}
+              {loading && (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', my: 2, alignItems: 'center' }}>
+                  <DoctorAvatarImage size={48} />
+                  <div className="typing-bubble" style={{ marginLeft: 8 }}>
+                    <span className="dot"></span>
+                    <span className="dot"></span>
+                    <span className="dot"></span>
+                  </div>
+                </Box>
+              )}
+              
+              {/* Invisible element for auto-scrolling */}
+              <div ref={chatEndRef} />
+            </Box>
+
+            {/* Quick Reply Buttons Section */}
+            <Box sx={{ 
+              px: 3, 
+              py: 2, 
+              borderTop: '1px solid rgba(76, 175, 80, 0.1)',
+              background: 'rgba(255, 255, 255, 0.8)',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                {quickReplies.map((reply, index) => (
+                  <Button
+                    key={index}
+                    variant="outlined"
+                    size="small"
+                    className="quick-reply-button"
+                    onClick={() => handleQuickReply(reply)}
+                    sx={{
+                      borderColor: '#4CAF50',  // Green border
+                      color: '#4CAF50',        // Green text
+                      '&:hover': {
+                        borderColor: '#388E3C',  // Darker green on hover
+                        bgcolor: 'rgba(76, 175, 80, 0.1)',  // Light green background
+                      }
+                    }}
+                  >
+                    {reply}
+                  </Button>
+                ))}
+              </Box>
+            </Box>
+
+            {/* Message Input Section - Pinned at Bottom */}
+            <Box className="chat-input-section">
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end' }}>
+                
+                {/* Text Input Field */}
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  placeholder="Type your message..."
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  disabled={loading}
+                  sx={{ 
+                    bgcolor: 'white',
+                    borderRadius: 2,
+                    '& .MuiOutlinedInput-root': {
+                      '& fieldset': {
+                        borderColor: '#e0e0e0',  // Default border
+                      },
+                      '&:hover fieldset': {
+                        borderColor: '#4CAF50',  // Green border on hover
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderColor: '#4CAF50',  // Green border when focused
+                      },
+                    }
+                  }}
+                  multiline
+                  minRows={1}
+                  maxRows={4}
+                />
+                
+                {/* Send Button */}
+                <IconButton 
+                  color="primary" 
+                  onClick={sendMessage} 
+                  disabled={loading || !input.trim()} 
+                  size="large" 
+                  sx={{ 
+                    alignSelf: 'flex-end',
+                    bgcolor: '#4CAF50',        // Green background
+                    color: 'white',            // White icon
+                    '&:hover': {
+                      bgcolor: '#388E3C',      // Darker green on hover
+                      transform: 'scale(1.05)', // Slight grow effect
+                      transition: 'all 0.2s ease'  // Smooth animation
+                    }
+                  }}
+                >
+                  <SendIcon />
+                </IconButton>
+              </Box>
+            </Box>
           </Box>
         </Container>
 
