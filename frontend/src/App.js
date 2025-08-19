@@ -36,7 +36,7 @@ import SendIcon from '@mui/icons-material/Send';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
-import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
+import logo from './logo.svg';
 
 /**
  * Material-UI Theme Configuration
@@ -326,8 +326,8 @@ function App() {
           background: 'linear-gradient(90deg, #4CAF50 0%, #66BB6A 100%)'  // Green gradient
         }}>
           <Toolbar>
-            {/* Health and Safety Icon */}
-            <HealthAndSafetyIcon sx={{ mr: 2, fontSize: 28, color: 'white' }} />
+            {/* App Logo */}
+            <img src={logo} alt="UCare Logo" style={{ width: 28, height: 28, marginRight: 16 }} />
             
             {/* Chatbot Title */}
             <Typography variant="h6" sx={{ 
