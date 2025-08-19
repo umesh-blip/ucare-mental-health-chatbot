@@ -20,6 +20,8 @@ const express = require('express');           // Web framework for Node.js
 const cors = require('cors');                // Enable cross-origin requests
 const { GoogleGenerativeAI } = require('@google/generative-ai'); // Google's AI service
 const path = require('path');
+const { PythonShell } = require('python-shell');
+const { addExchange, getImportantContext } = require('./memory');
 
 // Create Express application
 const app = express();
@@ -149,6 +151,35 @@ app.post('/api/chat', async (req, res) => {
     return res.status(400).json({ error: 'Message is required.' });
   }
 
+  // Crisis keyword safety check (do not send to AI)
+  const crisisKeywords = [
+    'suicide', 'kill myself', 'end my life', 'self-harm', 'hurt myself',
+    'take my life', 'i want to die', 'i want die', 'cut myself'
+  ];
+  const lower = message.toLowerCase();
+  if (crisisKeywords.some((k) => lower.includes(k))) {
+    const crisisMsg = `I hear your pain. If you are thinking about harming yourself, please know you don’t have to go through this alone. You can reach out to someone you trust, or call ${INDIAN_HELPLINE.phone} or visit ${INDIAN_HELPLINE.website} for immediate support.`;
+    addExchange(message, crisisMsg);
+    return res.json({ response: crisisMsg, stressLevel: 3 });
+  }
+
+  // Emotion detection via Python (best-effort)
+  let emotion = 'neutral';
+  try {
+    const result = await PythonShell.run('emotion_analyzer.py', {
+      mode: 'text',
+      args: [message],
+      scriptPath: __dirname,
+      pythonOptions: ['-u']
+    });
+    if (Array.isArray(result) && result.length > 0) {
+      const parsed = JSON.parse(result[result.length - 1]);
+      emotion = parsed.top_emotion || 'neutral';
+    }
+  } catch (e) {
+    // If Python not available on host, continue with neutral
+  }
+
   try {
     // PRIMARY: Use Gemini AI for intelligent responses
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -157,7 +188,18 @@ app.post('/api/chat', async (req, res) => {
      * Create a detailed prompt for the AI
      * This tells Gemini how to behave as UCare
      */
-    const prompt = `You are UCare, a caring mental health companion for Indian users.\nYour role is to:\n1. Gently detect signs of stress, anxiety, or burnout in the user's message.\n2. Respond in a warm, human, emotionally supportive tone.\n3. Offer 1 short, practical suggestion (breathing, reframing, tiny step) — not a list.\n4. Keep reply concise (25–45 words), friendly, and human-like with 1-2 appropriate emojis.\n5. Be encouraging and personal; avoid generic or clinical language.\n6. If the user seems in distress or the stress level feels very high, suggest reaching the Indian helpline (${INDIAN_HELPLINE.phone}) or website (${INDIAN_HELPLINE.website}) in a supportive way.\n\nIMPORTANT: After your response, output a single line exactly as follows on a new line:\nStressLevel: low, mid, high, or very high (your best estimate based on the user's message).\n\nUser message: "${message}"\n\nPlease respond as UCare.`;
+    const contextSnippet = getImportantContext();
+    const emotionInstruction = emotion === 'sadness'
+      ? 'The user feels sadness. Respond with empathy, validation, and warmth.'
+      : emotion === 'happiness'
+      ? 'The user feels happy. Respond with encouragement and positive energy.'
+      : emotion === 'anger'
+      ? 'The user may feel anger or frustration. Respond calmly, validate feelings, and suggest gentle coping.'
+      : emotion === 'fear'
+      ? 'The user feels fear or anxiety. Be soothing and offer a simple grounding tip.'
+      : 'Respond with a supportive, friendly tone.';
+
+    const prompt = `You are UCare, a caring mental health companion for Indian users.\n${emotionInstruction}\nYour role is to:\n1. Gently detect signs of stress, anxiety, or burnout.\n2. Reply warmly in human, emotionally supportive language.\n3. Offer ONE short, practical suggestion (breathing, reframing, tiny step).\n4. Keep reply concise (25–45 words) with 1–2 fitting emojis.\n5. Be encouraging and personal; avoid robotic or clinical tone.\n6. If the user seems in distress or stress is very high, it is appropriate to suggest reaching ${INDIAN_HELPLINE.phone} or ${INDIAN_HELPLINE.website}.\n\nRecent context (may help personalize):\n${contextSnippet || '(no recent context)'}\n\nUser message: "${message}"\n\nIMPORTANT: After your response, output a single line exactly as follows on a new line:\nStressLevel: low, mid, high, or very high (your best estimate).`;
 
     // Generate AI response
     const result = await model.generateContent(prompt);
@@ -179,6 +221,7 @@ app.post('/api/chat', async (req, res) => {
     }
 
     // Send both response and stressLevel
+    addExchange(message, finalBotText);
     return res.json({ response: finalBotText, stressLevel });
     
   } catch (error) {
