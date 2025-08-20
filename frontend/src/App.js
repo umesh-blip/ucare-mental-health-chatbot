@@ -13,6 +13,7 @@
 
 // Import React hooks and components
 import React, { useState, useRef, useEffect } from 'react';
+import './App.css';
 
 // Import Material-UI components for the user interface
 import { ThemeProvider, createTheme } from '@mui/material/styles';

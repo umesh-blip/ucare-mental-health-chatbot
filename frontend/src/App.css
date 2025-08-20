@@ -177,7 +177,6 @@ body {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch; /* smooth scrolling on iOS */
   overscroll-behavior: contain; /* prevent parent scroll chaining */
-  max-height: calc(100% - 140px); /* ensure inner area is bounded inside fixed card */
 }
 .inline-chat-messages::-webkit-scrollbar { width: 10px }
 .inline-chat-messages::-webkit-scrollbar-track { background: transparent }
@@ -558,7 +557,7 @@ textarea:focus-visible {
 .chat-row { display:flex; gap:8px; align-items:flex-end; }
 .chat-row.bot { justify-content:flex-start; }
 .chat-row.user { justify-content:flex-end; flex-direction:row-reverse; }
-.avatar { width:36px; height:36px; border-radius:50%; background:url('/codewizard.jpeg') center/cover no-repeat; }
+.avatar { width:36px; height:36px; border-radius:50%; background:#e0e0e0; }
 .chat-bubble { max-width:74%; padding:10px 12px; border-radius:14px; box-shadow: 0 6px 18px rgba(16,24,40,0.06); }
 .chat-bubble.bot { background:#f1f7fb; color:#0f1724; }
 .chat-bubble.user { background: linear-gradient(90deg,#4CAF50,#66BB6A); color:#fff; }
