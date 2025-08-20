@@ -66,20 +66,17 @@ const INDIAN_HELPLINE = {
 };
 
 /**
- * Add doctor SVG as a React component
+ * Add wizard SVG as a React component (fallback)
  */
-const DoctorAvatarSVG = () => (
+const WizardAvatarSVG = () => (
   <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 12}}>
-    <circle cx="24" cy="24" r="24" fill="#E3F2FD"/>
-    <ellipse cx="24" cy="32" rx="12" ry="8" fill="#B3E5FC"/>
-    <circle cx="24" cy="20" r="10" fill="#FFF"/>
-    <ellipse cx="24" cy="22" rx="6" ry="7" fill="#FFE0B2"/>
-    <ellipse cx="21" cy="19" rx="1.5" ry="2" fill="#000"/>
-    <ellipse cx="27" cy="19" rx="1.5" ry="2" fill="#000"/>
-    <ellipse cx="24" cy="25" rx="3" ry="1.5" fill="#F8BBD0"/>
-    <rect x="20" y="29" width="8" height="6" rx="3" fill="#90CAF9"/>
-    <rect x="22.5" y="31" width="3" height="2" rx="1" fill="#FFF"/>
-    <rect x="23.5" y="32" width="1" height="2" rx="0.5" fill="#90CAF9"/>
+    <circle cx="24" cy="24" r="24" fill="#E8F5E8"/>
+    <circle cx="24" cy="20" r="12" fill="#4CAF50"/>
+    <path d="M12 36 Q24 28 36 36" stroke="#4CAF50" strokeWidth="2" fill="none"/>
+    <circle cx="20" cy="18" r="2" fill="white"/>
+    <circle cx="28" cy="18" r="2" fill="white"/>
+    <path d="M22 24 Q24 26 26 24" stroke="white" strokeWidth="1.5" fill="none"/>
+    <path d="M16 12 L20 8 L28 8 L32 12" stroke="#4CAF50" strokeWidth="2" fill="#E8F5E8"/>
   </svg>
 );
 
@@ -87,12 +84,12 @@ const DoctorAvatarSVG = () => (
 const DoctorAvatarImage = ({ size = 48, className }) => {
   const [errored, setErrored] = React.useState(false);
   if (errored) {
-    return <DoctorAvatarSVG />;
+    return <WizardAvatarSVG />;
   }
   return (
     <img
-      src="/wizardcode.jpeg"
-      alt="Assistant"
+      src="/codewizard.jpeg"
+      alt="Wizard Assistant"
       width={size}
       height={size}
       onError={() => setErrored(true)}
@@ -349,11 +346,11 @@ function App() {
         </AppBar>
 
         {/* Main Chat Container */}
-        <Container maxWidth="md" sx={{ 
+        <Container maxWidth="md" className="main-container-area" sx={{ 
           flex: 1,                        // Take remaining space
           display: 'flex', 
           flexDirection: 'column', 
-          py: 3                           // Vertical padding
+          py: 0                           // No vertical padding - handled by CSS
         }}>
           
           {/* Stress Meter */}
@@ -368,12 +365,14 @@ function App() {
             <Box className="chat-messages-area">
               {/* Display All Messages */}
               {messages.map((msg, idx) => (
-                <Box key={idx} sx={{ 
-                  my: 2, 
-                  display: 'flex', 
-                  justifyContent: msg.from === 'user' ? 'flex-end' : 'flex-start',
-                  alignItems: 'flex-end',
-                }}>
+                <Box 
+                  key={idx} 
+                  className={`message-container ${msg.from}`}
+                  sx={{ 
+                    gap: 1,
+                    px: 1,
+                  }}
+                >
                   {msg.from === 'bot' && <DoctorAvatarImage size={48} />}
                   <Box
                     className={`${msg.from === 'user' ? 'slide-in-right' : 'slide-in-left'} bubble-pop message-bubble`}
@@ -383,17 +382,22 @@ function App() {
                       borderRadius: 2,
                       bgcolor: msg.from === 'user' ? '#4CAF50' : '#E3F2FD',
                       color: msg.from === 'user' ? 'white' : '#1976D2',
-                      maxWidth: '75%',
+                      maxWidth: '70%',
+                      minWidth: '120px',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                       border: msg.from === 'user' ? 'none' : '1px solid #BBDEFB',
-                      ml: msg.from === 'bot' ? 0 : 2,
+                      wordWrap: 'break-word',
+                      overflowWrap: 'break-word',
+                      boxSizing: 'border-box',
                     }}
                   >
                     {/* Message Text */}
                     <Typography variant="body1" sx={{ 
                       whiteSpace: 'pre-line',  // Preserve line breaks
                       fontWeight: msg.from === 'user' ? 500 : 400,  // User messages slightly bolder
-                      lineHeight: 1.6          // Comfortable reading spacing
+                      lineHeight: 1.6,          // Comfortable reading spacing
+                      wordBreak: 'break-word',  // Break long words if needed
+                      margin: 0,                // Remove default margins
                     }}>
                       {msg.text}
                     </Typography>
@@ -403,7 +407,13 @@ function App() {
               
               {/* Loading Indicator */}
               {loading && (
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start', my: 2, alignItems: 'center' }}>
+                <Box 
+                  className="message-container bot"
+                  sx={{ 
+                    gap: 1,
+                    px: 1,
+                  }}
+                >
                   <DoctorAvatarImage size={48} />
                   <div className="typing-bubble" style={{ marginLeft: 8 }}>
                     <span className="dot"></span>
@@ -418,13 +428,7 @@ function App() {
             </Box>
 
             {/* Quick Reply Buttons Section */}
-            <Box sx={{ 
-              px: 3, 
-              py: 2, 
-              borderTop: '1px solid rgba(76, 175, 80, 0.1)',
-              background: 'rgba(255, 255, 255, 0.8)',
-              backdropFilter: 'blur(10px)'
-            }}>
+            <Box className="quick-reply-section">
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
                 {quickReplies.map((reply, index) => (
                   <Button
