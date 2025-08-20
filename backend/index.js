@@ -205,17 +205,45 @@ app.post('/api/chat', async (req, res) => {
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const aiResponse = response.text();
-    
-    // Parse stress level from Gemini's response
-    const [botText, ...rest] = aiResponse.split('StressLevel:');
-    const stressLevelRaw = rest.join('StressLevel:').trim().toLowerCase();
+
+    // Helper: sanitize output (remove markdown images/HTML)
+    const sanitizeText = (txt) => {
+      if (!txt) return '';
+      return txt
+        // Remove markdown images ![alt](url)
+        .replace(/!\[[^\]]*\]\([^\)]*\)/g, '')
+        // Remove HTML tags
+        .replace(/<[^>]+>/g, '')
+        // Normalize whitespace
+        .replace(/[\t\r]+/g, ' ')
+        .trim();
+    };
+
+    // Parse stress level and main text robustly
+    const stressMatch = aiResponse.match(/StressLevel\s*:\s*([^\n]+)/i);
+    let stressLevelText = stressMatch ? String(stressMatch[1]).toLowerCase() : '';
     let stressLevel = 0; // default to low
-    if (stressLevelRaw.includes('very high')) stressLevel = 3;
-    else if (stressLevelRaw.includes('high')) stressLevel = 2;
-    else if (stressLevelRaw.includes('mid')) stressLevel = 1;
+    if (stressLevelText.includes('very high')) stressLevel = 3;
+    else if (stressLevelText.includes('high')) stressLevel = 2;
+    else if (stressLevelText.includes('mid')) stressLevel = 1;
+
+    // Remove the stress line from the message body
+    let botText = aiResponse.replace(/\n?\s*StressLevel\s*:\s*[^\n]+/i, '').trim();
+    botText = sanitizeText(botText);
+
+    // Fallback if AI returned no usable text (prevents empty bubbles)
+    if (!botText || botText.length < 3) {
+      let fallbackResponse;
+      if (isGreeting(message)) {
+        fallbackResponse = GREETING_RESPONSES[Math.floor(Math.random() * GREETING_RESPONSES.length)];
+      } else {
+        fallbackResponse = DEMO_REPLIES[Math.floor(Math.random() * DEMO_REPLIES.length)];
+      }
+      botText = fallbackResponse;
+    }
 
     // If stress very high, append helpline recommendation
-    let finalBotText = botText.trim();
+    let finalBotText = botText;
     if (stressLevel === 3) {
       finalBotText += `\n\nIf you feel overwhelmed, consider calling ${INDIAN_HELPLINE.phone} or visiting ${INDIAN_HELPLINE.website} for professional support.`;
     }
