@@ -9,6 +9,7 @@
  * - Quick reply buttons for common feelings
  * - Professional mental health app design
  * - Integration with backend AI service
+ * - Stress meter with suicide detection
  */
 
 // Import React hooks and components
@@ -28,14 +29,17 @@ import {
   Toolbar, 
   Container, 
   Button, 
-  Chip 
+  Chip,
+  Alert,
+  AlertTitle
 } from '@mui/material';
 
-// Import Material-UI iconshttps
+// Import Material-UI icons
 import SendIcon from '@mui/icons-material/Send';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
+import WarningIcon from '@mui/icons-material/Warning';
 
 /**
  * Material-UI Theme Configuration
@@ -69,7 +73,7 @@ const INDIAN_HELPLINE = {
  * Add wizard SVG as a React component (fallback)
  */
 const WizardAvatarSVG = () => (
-  <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 12}}>
+  <svg width="24" height="24" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 8}}>
     <circle cx="24" cy="24" r="24" fill="#E8F5E8"/>
     <circle cx="24" cy="20" r="12" fill="#4CAF50"/>
     <path d="M12 36 Q24 28 36 36" stroke="#4CAF50" strokeWidth="2" fill="none"/>
@@ -81,7 +85,7 @@ const WizardAvatarSVG = () => (
 );
 
 // Image-based avatar that falls back to SVG if the image is not found
-const DoctorAvatarImage = ({ size = 28, className }) => {
+const DoctorAvatarImage = ({ size = 24, className }) => {
   const [errored, setErrored] = React.useState(false);
   if (errored) {
     return <WizardAvatarSVG />;
@@ -109,26 +113,94 @@ const DoctorAvatarFloating = ({ visible }) => (
 );
 
 /**
- * Stress meter component
+ * Enhanced stress meter component with suicide detection
  */
 const stressLevels = [
-  { label: 'Low', emoji: '😊', color: '#4CAF50' },
-  { label: 'Mid', emoji: '😐', color: '#FFC107' },
-  { label: 'High', emoji: '😟', color: '#FF9800' },
-  { label: 'Very High', emoji: '😫', color: '#F44336' },
+  { label: 'Low', emoji: '😊', color: '#4CAF50', description: 'Feeling good' },
+  { label: 'Mid', emoji: '😐', color: '#FFC107', description: 'Slightly stressed' },
+  { label: 'High', emoji: '😟', color: '#FF9800', description: 'Quite stressed' },
+  { label: 'Very High', emoji: '😫', color: '#F44336', description: 'Very stressed' },
+  { label: 'Ultra High', emoji: '🚨', color: '#9C27B0', description: 'Critical - Please seek help' },
 ];
 
-const StressMeter = ({ level }) => (
-  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, justifyContent: 'center' }}>
-    <Typography variant="subtitle1" sx={{ mr: 2, fontWeight: 'bold' }}>Stress Meter:</Typography>
-    {stressLevels.map((s, idx) => (
-      <Box key={s.label} sx={{ display: 'flex', alignItems: 'center', mx: 1 }}>
-        <span style={{ fontSize: 24, opacity: idx === level ? 1 : 0.3 }}>{s.emoji}</span>
-        <Typography variant="body2" sx={{ ml: 0.5, color: idx === level ? s.color : '#888', fontWeight: idx === level ? 'bold' : 'normal' }}>{s.label}</Typography>
+const StressMeter = ({ level, deathMentions = 0 }) => {
+  // Show ultra high only if death mentions >= 3
+  const shouldShowUltra = deathMentions >= 3;
+  const currentLevel = shouldShowUltra && level === 3 ? 4 : level;
+  
+  return (
+    <Box sx={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center', 
+      mb: 2, 
+      p: 2,
+      bgcolor: 'rgba(255,255,255,0.9)',
+      borderRadius: 2,
+      border: '1px solid rgba(76,175,80,0.1)'
+    }}>
+      <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 'bold', color: '#2c3e50' }}>
+        Stress Level Indicator
+      </Typography>
+      
+      <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', gap: 1 }}>
+        {stressLevels.map((s, idx) => {
+          const isActive = idx === currentLevel;
+          const shouldDisplay = idx < 4 || shouldShowUltra;
+          
+          if (!shouldDisplay) return null;
+          
+          return (
+            <Box key={s.label} sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              mx: 0.5,
+              opacity: isActive ? 1 : 0.4,
+              transition: 'all 0.3s ease'
+            }}>
+              <span style={{ 
+                fontSize: 28, 
+                filter: isActive ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none'
+              }}>
+                {s.emoji}
+              </span>
+              <Typography variant="body2" sx={{ 
+                ml: 0.5, 
+                color: isActive ? s.color : '#888', 
+                fontWeight: isActive ? 'bold' : 'normal',
+                fontSize: '0.75rem'
+              }}>
+                {s.label}
+              </Typography>
+            </Box>
+          );
+        })}
       </Box>
-    ))}
-  </Box>
-);
+      
+      {currentLevel === 4 && (
+        <Alert severity="error" sx={{ mt: 1, width: '100%' }}>
+          <AlertTitle>⚠️ Critical Stress Level Detected</AlertTitle>
+          <Typography variant="body2">
+            Please call the Indian Mental Health Helpline immediately: <strong>{INDIAN_HELPLINE.phone}</strong>
+          </Typography>
+          <Button 
+            variant="contained" 
+            color="error" 
+            size="small" 
+            sx={{ mt: 1 }}
+            onClick={() => window.open(INDIAN_HELPLINE.website, '_blank')}
+          >
+            Visit Helpline Website
+          </Button>
+        </Alert>
+      )}
+      
+      <Typography variant="caption" sx={{ mt: 1, color: '#666', textAlign: 'center' }}>
+        {stressLevels[currentLevel]?.description}
+      </Typography>
+    </Box>
+  );
+};
 
 /**
  * Health-safety rotating tips
@@ -173,6 +245,12 @@ function App() {
   const [hasTop, setHasTop] = useState(false);
   const [hasBottom, setHasBottom] = useState(false);
 
+  // Add state for stress level (0: Low, 1: Mid, 2: High, 3: Very High, 4: Ultra High)
+  const [stressLevel, setStressLevel] = useState(0);
+  
+  // Track death-related mentions for ultra-high stress detection
+  const [deathMentions, setDeathMentions] = useState(0);
+
   useEffect(() => {
     // Auto-scroll to bottom when new messages arrive only if user is near bottom
     if (isNearBottom) {
@@ -188,9 +266,6 @@ function App() {
     setHasTop(el.scrollTop > 8);
     setHasBottom(!nearBottom);
   };
-
-  // Add state for stress level (0: Low, 1: Mid, 2: High, 3: Very High)
-  const [stressLevel, setStressLevel] = useState(0);
 
   // Add state for doctor avatar visibility (existing) and new tip index
   const [doctorVisible, setDoctorVisible] = useState(false);
@@ -214,12 +289,25 @@ function App() {
   }, [messages]);
 
   /**
-   * Auto-scroll to bottom when new messages arrive
-   * This ensures users always see the latest message
+   * Check for death-related keywords in user messages
    */
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  const checkDeathKeywords = (message) => {
+    const deathKeywords = [
+      'death', 'die', 'dying', 'suicide', 'kill myself', 'end my life', 'self-harm',
+      'hurt myself', 'take my life', 'i want to die', 'i want die', 'cut myself',
+      'no reason to live', 'better off dead', 'world without me', 'end it all'
+    ];
+    
+    const lowerMessage = message.toLowerCase();
+    const hasDeathKeywords = deathKeywords.some(keyword => lowerMessage.includes(keyword));
+    
+    if (hasDeathKeywords) {
+      setDeathMentions(prev => prev + 1);
+      return true;
+    }
+    
+    return false;
+  };
 
   /**
    * Send Message Function
@@ -228,6 +316,9 @@ function App() {
   const sendMessage = async () => {
     // Don't send empty messages
     if (!input.trim()) return;
+    
+    // Check for death-related keywords
+    const hasDeathKeywords = checkDeathKeywords(input);
     
     // Add user message to chat immediately
     const userMsg = { from: 'user', text: input };
@@ -265,6 +356,11 @@ function App() {
       // Set stress level from backend if available
       if (typeof data.stressLevel === 'number') {
         setStressLevel(data.stressLevel);
+      }
+      
+      // If death keywords detected, ensure stress level is set to ultra high
+      if (hasDeathKeywords && deathMentions >= 2) {
+        setStressLevel(4); // Ultra high
       }
       
     } catch (e) {
@@ -372,7 +468,8 @@ function App() {
           flexDirection: 'column', 
           py: 0                           // No vertical padding - handled by CSS
         }}>
-          
+          {/* Stress Meter OUTSIDE chat card */}
+          <StressMeter level={stressLevel} deathMentions={deathMentions} />
           {/* Inline Chat Card - centered */}
           <Box sx={{ flex: 1, position: 'relative' }}>
             <Box className="chat-card fixed" sx={{ borderRadius: 3, boxShadow: 3, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -479,6 +576,7 @@ export default App;
  * 1. COMPONENT STRUCTURE:
  *    - AppBar: Top navigation with title and helpline
  *    - Chat Container: Main area for messages
+ *    - Stress Meter: Visual indicator of user's stress level
  *    - Quick Reply Buttons: Common conversation starters
  *    - Input Section: Text field and send button
  *    - Footer: Helpline information
@@ -487,23 +585,31 @@ export default App;
  *    - messages: Array of all chat messages
  *    - input: Current text being typed
  *    - loading: Whether bot is processing
+ *    - stressLevel: Current stress level (0-4)
+ *    - deathMentions: Count of death-related keywords
  * 
  * 3. USER INTERACTION:
  *    - Type message and press Enter or click Send
  *    - Click quick reply buttons for instant responses
  *    - Messages automatically scroll to bottom
+ *    - Stress meter updates based on conversation
  * 
  * 4. BACKEND COMMUNICATION:
- *    - Sends POST requests to http://localhost:5050/api/chat
- *    - Receives AI responses from Gemini
+ *    - Sends POST requests to /api/chat
+ *    - Receives AI responses from Gemini API
  *    - Handles errors gracefully with fallback messages
  * 
- * 5. STYLING:
+ * 5. STRESS DETECTION:
+ *    - Monitors for death-related keywords
+ *    - Shows ultra-high stress level after 3+ mentions
+ *    - Provides immediate helpline contact information
+ * 
+ * 6. STYLING:
  *    - Material-UI components for professional look
  *    - Green color scheme representing health and wellness
  *    - Responsive design that works on all screen sizes
  * 
- * 6. CUSTOMIZATION:
+ * 7. CUSTOMIZATION:
  *    - Change colors in the theme object
  *    - Add more quick reply buttons
  *    - Modify the layout and spacing

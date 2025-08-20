@@ -199,7 +199,7 @@ app.post('/api/chat', async (req, res) => {
       ? 'The user feels fear or anxiety. Be soothing and offer a simple grounding tip.'
       : 'Respond with a supportive, friendly tone.';
 
-    const prompt = `You are WizCare, a caring mental health companion for Indian users.\n${emotionInstruction}\nYour role is to:\n1. Gently detect signs of stress, anxiety, or burnout.\n2. Reply warmly in human, emotionally supportive language.\n3. Offer ONE short, practical suggestion (breathing, reframing, tiny step).\n4. Keep reply concise (25–45 words) with 1–2 fitting emojis.\n5. Be encouraging and personal; avoid robotic or clinical tone.\n6. If the user seems in distress or stress is very high, it is appropriate to suggest reaching ${INDIAN_HELPLINE.phone} or ${INDIAN_HELPLINE.website}.\n\nRecent context (may help personalize):\n${contextSnippet || '(no recent context)'}\n\nUser message: "${message}"\n\nIMPORTANT: After your response, output a single line exactly as follows on a new line:\nStressLevel: low, mid, high, or very high (your best estimate).`;
+    const prompt = `You are WizCare, a caring mental health companion for Indian users.\n${emotionInstruction}\nYour role is to:\n1. Gently detect signs of stress, anxiety, or burnout.\n2. Reply warmly in human, emotionally supportive language.\n3. Offer ONE short, practical suggestion (breathing, reframing, tiny step).\n4. Keep reply concise (25–45 words) with 1–2 fitting emojis.\n5. Be encouraging and personal; avoid robotic or clinical tone.\n6. If the user seems in distress or stress is very high, it is appropriate to suggest reaching ${INDIAN_HELPLINE.phone} or ${INDIAN_HELPLINE.website}.\n7. If the user mentions death, dying, or suicide multiple times, assess stress as "ultra high".\n\nRecent context (may help personalize):\n${contextSnippet || '(no recent context)'}\n\nUser message: "${message}"\n\nIMPORTANT: After your response, output a single line exactly as follows on a new line:\nStressLevel: low, mid, high, very high, or ultra high (your best estimate).`;
 
     // Generate AI response
     const result = await model.generateContent(prompt);
@@ -214,8 +214,15 @@ app.post('/api/chat', async (req, res) => {
         .replace(/!\[[^\]]*\]\([^\)]*\)/g, '')
         // Remove HTML tags
         .replace(/<[^>]+>/g, '')
+        // Remove direct image URLs (http/https links ending with .jpg, .jpeg, .png, .gif, .webp, .svg)
+        .replace(/https?:\/\/(\S+\.(jpg|jpeg|png|gif|webp|svg))/gi, '')
+        // Remove markdown links [text](url) but keep the text
+        .replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '$1')
+        // Remove any remaining markdown formatting
+        .replace(/[*_`#>\-]/g, '')
         // Normalize whitespace
         .replace(/[\t\r]+/g, ' ')
+        .replace(/\n{3,}/g, '\n\n')
         .trim();
     };
 
@@ -223,7 +230,8 @@ app.post('/api/chat', async (req, res) => {
     const stressMatch = aiResponse.match(/StressLevel\s*:\s*([^\n]+)/i);
     let stressLevelText = stressMatch ? String(stressMatch[1]).toLowerCase() : '';
     let stressLevel = 0; // default to low
-    if (stressLevelText.includes('very high')) stressLevel = 3;
+    if (stressLevelText.includes('ultra high')) stressLevel = 4;
+    else if (stressLevelText.includes('very high')) stressLevel = 3;
     else if (stressLevelText.includes('high')) stressLevel = 2;
     else if (stressLevelText.includes('mid')) stressLevel = 1;
 
@@ -242,10 +250,12 @@ app.post('/api/chat', async (req, res) => {
       botText = fallbackResponse;
     }
 
-    // If stress very high, append helpline recommendation
+    // If stress very high or ultra high, append helpline recommendation
     let finalBotText = botText;
     if (stressLevel === 3) {
       finalBotText += `\n\nIf you feel overwhelmed, consider calling ${INDIAN_HELPLINE.phone} or visiting ${INDIAN_HELPLINE.website} for professional support.`;
+    } else if (stressLevel === 4) {
+      finalBotText += `\n\n🚨 CRITICAL: Please call the Indian Mental Health Helpline IMMEDIATELY at ${INDIAN_HELPLINE.phone} or visit ${INDIAN_HELPLINE.website}. Professional help is available 24/7.`;
     }
 
     // Send both response and stressLevel
