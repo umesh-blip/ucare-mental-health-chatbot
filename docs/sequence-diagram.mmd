@@ -1,0 +1,22 @@
+%%{init: {'theme':'default',
+         'themeVariables': {'fontFamily':'Arial, sans-serif'},
+         'sequence': {
+           'diagramMarginX': 80,
+           'diagramMarginY': 40,
+           'actorFontSize': 20,
+           'fontSize': 18,
+           'noteFontSize': 16
+         }}}%%
+sequenceDiagram
+  User->>Frontend: Sends message
+  Frontend->>Backend: POST /api/chat { message }
+  Backend->>Backend: Safety check (crisis keywords)
+  alt crisis
+    Backend-->>Frontend: Immediate safety reply (no AI)
+  else
+    Backend->>Backend: Emotion detect + load recent memory
+    Backend->>Gemini: Call AI with prompt (emotion + memory + message)
+    Gemini-->>Backend: AI reply (+ stress level)
+    Backend-->>Frontend: { response, stressLevel }
+  end
+  Frontend->>User: Show reply (highlight helpline if stress high)
