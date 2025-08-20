@@ -81,7 +81,7 @@ const WizardAvatarSVG = () => (
 );
 
 // Image-based avatar that falls back to SVG if the image is not found
-const DoctorAvatarImage = ({ size = 48, className }) => {
+const DoctorAvatarImage = ({ size = 28, className }) => {
   const [errored, setErrored] = React.useState(false);
   if (errored) {
     return <WizardAvatarSVG />;
@@ -94,7 +94,7 @@ const DoctorAvatarImage = ({ size = 48, className }) => {
       height={size}
       onError={() => setErrored(true)}
       className={className || 'doctor-avatar-img'}
-      style={{ marginRight: 12, borderRadius: '50%', boxShadow: '0 4px 10px rgba(0,0,0,0.12)' }}
+      style={{ marginRight: 8, borderRadius: '50%', boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}
     />
   );
 };
@@ -104,7 +104,7 @@ const DoctorAvatarImage = ({ size = 48, className }) => {
  */
 const DoctorAvatarFloating = ({ visible }) => (
   <div className={`doctor-avatar-floating ${visible ? 'slide-in-doctor' : 'slide-out-doctor'}`}>
-    <DoctorAvatarImage size={80} className="doctor-avatar-img" />
+    <DoctorAvatarImage size={56} className="doctor-avatar-img" />
   </div>
 );
 
@@ -393,7 +393,7 @@ function App() {
               >
                 {messages.map((msg, idx) => (
                   <Box key={idx} sx={{ display: 'flex', mb: 2, justifyContent: msg.from === 'user' ? 'flex-end' : 'flex-start' }}>
-                    {msg.from === 'bot' && <DoctorAvatarImage size={40} />}
+                    {msg.from === 'bot' && <DoctorAvatarImage size={24} />}
                     <Box sx={{ maxWidth: '75%' }}>
                       <Box className={`message-bubble ${msg.from === 'user' ? 'user-fill' : 'bot'}`} sx={{ p: 1.5 }}>
                         <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{msg.text}</Typography>
@@ -404,7 +404,7 @@ function App() {
                 ))}
                 {loading && (
                   <Box sx={{ display: 'flex', mb: 2, alignItems: 'center' }}>
-                    <DoctorAvatarImage size={40} />
+                    <DoctorAvatarImage size={24} />
                     <div className="typing-bubble" style={{ marginLeft: 12 }}>
                       <span className="dot"></span>
                       <span className="dot"></span>
