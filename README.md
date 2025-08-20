@@ -1,6 +1,6 @@
-# UCare Mental Health Chatbot 🧠💚
+# WizCare Mental Health Chatbot 🧠💚
 
-An AI-powered mental health chatbot built with React, Node.js, and Google Gemini AI. UCare provides supportive conversations and mental health guidance with a focus on Indian users.
+An AI-powered mental health chatbot built with React, Node.js, and Google Gemini AI. WizCare provides supportive conversations and mental health guidance with a focus on Indian users.
 
 ## 🏗️ Project Structure
 
@@ -51,67 +51,8 @@ cd ../frontend && npm install
 ```
 
 ### 2. Configure Environment
-Create a `.env` file in the `backend/` folder:
-```env
-# Your Google Gemini API key
+# Mine Google Gemini API key
 GEMINI_API_KEY=your_api_key_here
-```
-
-### 3. Start the Chatbot
-```bash
-# Start both backend and frontend simultaneously
-npm start
-
-# Or start them separately:
-npm run backend    # Start backend server
-npm run frontend   # Start React app
-```
-
-## 🎯 How to Use
-
-### Backend Development
-```bash
-cd backend
-npm run dev        # Start with nodemon (auto-restart on changes)
-npm start          # Start production server
-```
-
-### Frontend Development
-```bash
-cd frontend
-npm start          # Start React development server
-npm run build      # Build for production
-```
-
-## 🔧 Configuration
-
-### Backend Settings
-- **Port**: Default 5050 (configurable via `PORT` environment variable)
-- **AI Model**: Gemini 1.5 Flash
-- **CORS**: Enabled for frontend communication
-
-### Frontend Settings
-- **Port**: Default 3000 (auto-assigned if busy)
-- **API Endpoint**: `http://localhost:5050/api/chat`
-- **Theme**: Health-focused green color scheme
-
-## 📡 API Endpoints
-
-### POST `/api/chat`
-Send a message and receive an AI response.
-
-**Request:**
-```json
-{
-  "message": "I'm feeling anxious today"
-}
-```
-
-**Response:**
-```json
-{
-  "response": "I understand anxiety can be really challenging..."
-}
 ```
 
 ## 🎨 Customization
@@ -124,21 +65,6 @@ const DEMO_REPLIES = [
   "Your new response here! 💚"
 ];
 ```
-
-### Changing Colors
-Edit `frontend/src/App.js` and modify the theme:
-```javascript
-const theme = createTheme({
-  palette: {
-    primary: { main: '#your-color-here' },
-    // ... other colors
-  },
-});
-```
-
-### Adding New Features
-- **Backend**: Add new routes in `backend/index.js`
-- **Frontend**: Create new components in `frontend/src/`
 
 ## 🐛 Troubleshooting
 
@@ -198,3 +124,52 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 **Remember**: UCare is a supportive companion, but it's not a replacement for professional mental health care. If you're in crisis, please reach out to a mental health professional or emergency services.
 
 **Built with ❤️ for better mental health support**
+
+---
+
+## Sequence diagram (chat flow)
+
+Diagram image: `docs/sequence-diagram.png` (generate locally — instructions below)
+
+Mermaid source (renderable in supported viewers):
+
+```mermaid
+sequenceDiagram
+  User->>Frontend: Sends message
+  Frontend->>Backend: POST /api/chat { message }
+  Backend->>Backend: Safety check (crisis keywords)
+  alt crisis
+    Backend-->>Frontend: Immediate safety reply (no AI)
+  else
+    Backend->>Backend: Emotion detect + load recent memory
+    Backend->>Gemini: Call AI with prompt (emotion + memory + message)
+    Gemini-->>Backend: AI reply (+ stress level)
+    Backend-->>Frontend: { response, stressLevel }
+  end
+  Frontend->>User: Show reply (highlight helpline if stress high)
+```
+
+How to generate PNG locally (optional):
+
+1. Install Mermaid CLI (requires Node.js):
+
+```bash
+# install once globally
+npm install -g @mermaid-js/mermaid-cli
+```
+
+2. Save the mermaid block above to a file, e.g. `diagram.mmd`, then run:
+
+```bash
+mmdc -i diagram.mmd -o docs/sequence-diagram.png
+```
+
+This will create `docs/sequence-diagram.png`. Commit it to the repo with:
+
+```bash
+git add docs/sequence-diagram.png README.md
+git commit -m "Add sequence diagram (mermaid) and instructions"
+git push origin main
+```
+
+If you'd like, I can generate the PNG for you here (I will need permission to install `@mermaid-js/mermaid-cli` and write the file into the repository). Let me know if you want me to run that now.

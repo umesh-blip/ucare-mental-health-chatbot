@@ -1,5 +1,5 @@
 /**
- * UCare Mental Health Chatbot - Backend Server
+ * WizCare Mental Health Chatbot - Backend Server
  * 
  * This is the main backend server that powers your UCare chatbot.
  * It handles AI responses using Google Gemini AI and provides fallback responses.
@@ -110,12 +110,12 @@ const DEMO_REPLIES = [
  * Provides 8 different welcoming responses
  */
 const GREETING_RESPONSES = [
-  "Hey there! 👋 Welcome to UCare! I'm your AI mental health buddy. How are you feeling today?",
+  "Hey there! 👋 Welcome to WizCare! I'm your AI mental health buddy. How are you feeling today?",
   "Hi friend! 🌟 Great to see you here! I'm here to listen and chat whenever you need someone to talk to.",
   "Hello! 🚀 Thanks for stopping by! How's your mental health journey going today?",
   "Hey! ✨ Welcome! I'm here to support you through whatever you're going through. What's on your mind?",
   "Hi there! 🌈 Nice to meet you! I'm your mental health companion. How can I help you today?",
-  "Hello! 💫 Welcome to the UCare family! I'm here to chat, listen, and support you. How are you doing?",
+  "Hello! 💫 Welcome to the WizCare family! I'm here to chat, listen, and support you. How are you doing?",
   "Hey! 🎯 Great to have you here! I'm your AI friend who's here to help with whatever's on your mind.",
   "Hi! 🌙 Welcome! I'm here to be your mental health companion. What would you like to talk about today?"
 ];
@@ -199,7 +199,7 @@ app.post('/api/chat', async (req, res) => {
       ? 'The user feels fear or anxiety. Be soothing and offer a simple grounding tip.'
       : 'Respond with a supportive, friendly tone.';
 
-    const prompt = `You are UCare, a caring mental health companion for Indian users.\n${emotionInstruction}\nYour role is to:\n1. Gently detect signs of stress, anxiety, or burnout.\n2. Reply warmly in human, emotionally supportive language.\n3. Offer ONE short, practical suggestion (breathing, reframing, tiny step).\n4. Keep reply concise (25–45 words) with 1–2 fitting emojis.\n5. Be encouraging and personal; avoid robotic or clinical tone.\n6. If the user seems in distress or stress is very high, it is appropriate to suggest reaching ${INDIAN_HELPLINE.phone} or ${INDIAN_HELPLINE.website}.\n\nRecent context (may help personalize):\n${contextSnippet || '(no recent context)'}\n\nUser message: "${message}"\n\nIMPORTANT: After your response, output a single line exactly as follows on a new line:\nStressLevel: low, mid, high, or very high (your best estimate).`;
+    const prompt = `You are WizCare, a caring mental health companion for Indian users.\n${emotionInstruction}\nYour role is to:\n1. Gently detect signs of stress, anxiety, or burnout.\n2. Reply warmly in human, emotionally supportive language.\n3. Offer ONE short, practical suggestion (breathing, reframing, tiny step).\n4. Keep reply concise (25–45 words) with 1–2 fitting emojis.\n5. Be encouraging and personal; avoid robotic or clinical tone.\n6. If the user seems in distress or stress is very high, it is appropriate to suggest reaching ${INDIAN_HELPLINE.phone} or ${INDIAN_HELPLINE.website}.\n\nRecent context (may help personalize):\n${contextSnippet || '(no recent context)'}\n\nUser message: "${message}"\n\nIMPORTANT: After your response, output a single line exactly as follows on a new line:\nStressLevel: low, mid, high, or very high (your best estimate).`;
 
     // Generate AI response
     const result = await model.generateContent(prompt);
@@ -256,7 +256,7 @@ if (process.env.NODE_ENV === 'production') {
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log(`Your UCare chatbot is now live! 🚀`);
+  console.log(`Your WizCare chatbot is now live! 🚀`);
   console.log(`Frontend can connect at: http://localhost:${PORT}`);
 });
 
