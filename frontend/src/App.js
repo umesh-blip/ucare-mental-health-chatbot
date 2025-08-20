@@ -65,7 +65,7 @@ const theme = createTheme({
  * This is displayed prominently in the chatbot interface
  */
 const INDIAN_HELPLINE = {
-  phone: '9152987821',
+  phone: '8448-8448-45',
   website: 'https://manastha.com/',
 };
 
@@ -480,7 +480,6 @@ function App() {
                   <Typography variant="caption" sx={{ opacity: 0.9 }}>Online • Here to help</Typography>
                 </Box>
               </Box>
-
               {/* Messages area: only this scrolls. */}
               <Box
                 className={`inline-chat-messages ${hasTop ? 'has-top' : ''} ${hasBottom ? 'has-bottom' : ''}`}
@@ -490,7 +489,7 @@ function App() {
               >
                 {messages.map((msg, idx) => (
                   <Box key={idx} sx={{ display: 'flex', mb: 2, justifyContent: msg.from === 'user' ? 'flex-end' : 'flex-start' }}>
-                    {msg.from === 'bot' && <DoctorAvatarImage size={24} />}
+                    {/* REMOVE DoctorAvatarImage from bot replies */}
                     <Box sx={{ maxWidth: '75%' }}>
                       <Box className={`message-bubble ${msg.from === 'user' ? 'user-fill' : 'bot'}`} sx={{ p: 1.5 }}>
                         <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{msg.text}</Typography>
@@ -501,7 +500,7 @@ function App() {
                 ))}
                 {loading && (
                   <Box sx={{ display: 'flex', mb: 2, alignItems: 'center' }}>
-                    <DoctorAvatarImage size={24} />
+                    {/* REMOVE DoctorAvatarImage from typing indicator */}
                     <div className="typing-bubble" style={{ marginLeft: 12 }}>
                       <span className="dot"></span>
                       <span className="dot"></span>
@@ -515,7 +514,7 @@ function App() {
               <Box className="chat-card-footer" sx={{ p: 2, borderTop: '1px solid rgba(0,0,0,0.06)', display: 'flex', gap: 1, flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
                   {quickReplies.map((q, i) => (
-                    <Button key={i} size="small" variant="outlined" onClick={() => handleQuickReply(q)} sx={{ borderRadius: 20 }}>{q}</Button>
+                    <Button key={i} size="small" variant="outlined" onClick={() => handleQuickReply(q)} sx={{ borderRadius: 20, fontSize: '0.75rem', px: 1.5, py: 0.5, minHeight: 24, minWidth: 0, lineHeight: 1.1 }}>{q}</Button>
                   ))}
                 </Box>
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
