@@ -472,7 +472,7 @@ function App() {
           <StressMeter level={stressLevel} deathMentions={deathMentions} />
           {/* Inline Chat Card - centered */}
           <Box sx={{ flex: 1, position: 'relative' }}>
-            <Box className="chat-card fixed" sx={{ borderRadius: 3, boxShadow: 3, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+            <Box className="chat-card fixed" sx={{ borderRadius: 3, boxShadow: 3, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'linear-gradient(135deg, #e0f7fa 60%, #b2dfdb 100%)', border: '1.5px solid #26a69a' }}>
               <Box className="chat-card-header" sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2, bgcolor: 'primary.main', color: 'white' }}>
                 <img src="/codewizard.jpeg" alt="WizCare" style={{ width: 32, height: 32, borderRadius: 8 }} />
                 <Box sx={{ flex: 1 }}>
@@ -489,7 +489,8 @@ function App() {
               >
                 {messages.map((msg, idx) => (
                   <Box key={idx} sx={{ display: 'flex', mb: 2, justifyContent: msg.from === 'user' ? 'flex-end' : 'flex-start' }}>
-                    {/* REMOVE DoctorAvatarImage from bot replies */}
+                    {/* Only show avatar for bot, never for user */}
+                    {msg.from === 'bot' && false /* Remove avatar for text-only chat */}
                     <Box sx={{ maxWidth: '75%' }}>
                       <Box className={`message-bubble ${msg.from === 'user' ? 'user-fill' : 'bot'}`} sx={{ p: 1.5 }}>
                         <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{msg.text}</Typography>
@@ -500,7 +501,6 @@ function App() {
                 ))}
                 {loading && (
                   <Box sx={{ display: 'flex', mb: 2, alignItems: 'center' }}>
-                    {/* REMOVE DoctorAvatarImage from typing indicator */}
                     <div className="typing-bubble" style={{ marginLeft: 12 }}>
                       <span className="dot"></span>
                       <span className="dot"></span>
@@ -510,11 +510,10 @@ function App() {
                 )}
                 <div ref={chatEndRef} />
               </Box>
-
               <Box className="chat-card-footer" sx={{ p: 2, borderTop: '1px solid rgba(0,0,0,0.06)', display: 'flex', gap: 1, flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 1 }}>
                   {quickReplies.map((q, i) => (
-                    <Button key={i} size="small" variant="outlined" onClick={() => handleQuickReply(q)} sx={{ borderRadius: 20, fontSize: '0.75rem', px: 1.5, py: 0.5, minHeight: 24, minWidth: 0, lineHeight: 1.1 }}>{q}</Button>
+                    <Button key={i} size="small" variant="outlined" onClick={() => handleQuickReply(q)} sx={{ borderRadius: 20, fontSize: '0.7rem', px: 1, py: 0.2, minHeight: 20, minWidth: 0, lineHeight: 1.1 }}>{q}</Button>
                   ))}
                 </Box>
                 <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
